@@ -1,0 +1,812 @@
+{
+  "markers": {
+    "absolutive": [
+      {
+        "id": 1,
+        "word": "never",
+        "example": "The government will never admit its failures, no matter the evidence."
+      },
+      {
+        "id": 2,
+        "word": "always",
+        "example": "The mainstream media always twists the facts to serve its corporate masters."
+      },
+      {
+        "id": 3,
+        "word": "everyone",
+        "example": "Everyone already knows the official version of events is a lie."
+      },
+      {
+        "id": 4,
+        "word": "nobody",
+        "example": "Nobody in power cares about ordinary citizens anymore."
+      },
+      {
+        "id": 5,
+        "word": "absolutely",
+        "example": "This policy is absolutely catastrophic for the future of the country."
+      },
+      {
+        "id": 6,
+        "word": "all",
+        "example": "All experts agree that the election results cannot be trusted."
+      },
+      {
+        "id": 7,
+        "word": "completely",
+        "example": "The investigation was completely rigged from the very beginning."
+      },
+      {
+        "id": 8,
+        "word": "without exception",
+        "example": "Every official without exception has been implicated in the scandal."
+      },
+      {
+        "id": 9,
+        "word": "inevitably",
+        "example": "This reckless spending will inevitably lead to economic collapse."
+      },
+      {
+        "id": 10,
+        "word": "totally",
+        "example": "The justice system is totally broken and beyond repair."
+      },
+      {
+        "id": 11,
+        "word": "every single",
+        "example": "Every single promise made during the campaign has been broken."
+      },
+      {
+        "id": 12,
+        "word": "nothing but",
+        "example": "The report contained nothing but distortions and deliberate omissions."
+      },
+      {
+        "id": 13,
+        "word": "once and for all",
+        "example": "We must once and for all expose the corrupt networks running this country."
+      },
+      {
+        "id": 14,
+        "word": "no one",
+        "example": "No one in the establishment is willing to tell the public the truth."
+      },
+      {
+        "id": 15,
+        "word": "categorically",
+        "example": "Scientists categorically reject any alternative explanation for the data."
+      },
+      {
+        "id": 16,
+        "word": "universally",
+        "example": "The decision was universally condemned by independent observers worldwide."
+      },
+      {
+        "id": 17,
+        "word": "entirely",
+        "example": "The agency is entirely captured by the very industry it is meant to regulate."
+      },
+      {
+        "id": 18,
+        "word": "in every case",
+        "example": "In every case where officials were investigated, evidence conveniently disappeared."
+      },
+      {
+        "id": 19,
+        "word": "across the board",
+        "example": "Standards have collapsed across the board under the current administration."
+      },
+      {
+        "id": 20,
+        "word": "without question",
+        "example": "This is without question the most corrupt government in modern history."
+      },
+      {
+        "id": 1,
+        "word": "никогда",
+        "example": "Власти никогда не признают своих ошибок в этой сфере."
+      },
+      {
+        "id": 2,
+        "word": "всегда",
+        "example": "Западные СМИ всегда искажают факты в угоду своим хозяевам."
+      },
+      {
+        "id": 3,
+        "word": "абсолютно все",
+        "example": "Абсолютно все эксперты согласны с тем, что реформа провалилась."
+      },
+      {
+        "id": 4,
+        "word": "никто",
+        "example": "Никто из официальных лиц не осмелился прокомментировать произошедшее."
+      },
+      {
+        "id": 5,
+        "word": "каждый",
+        "example": "Каждый здравомыслящий человек понимает, к чему это приведёт."
+      },
+      {
+        "id": 6,
+        "word": "повсеместно",
+        "example": "Коррупция повсеместно охватила государственные структуры."
+      },
+      {
+        "id": 7,
+        "word": "абсолютно",
+        "example": "Это абсолютно недопустимо для цивилизованного государства."
+      },
+      {
+        "id": 8,
+        "word": "без исключения",
+        "example": "Все депутаты без исключения проголосовали против интересов народа."
+      },
+      {
+        "id": 9,
+        "word": "окончательно",
+        "example": "Репутация страны окончательно уничтожена на международной арене."
+      },
+      {
+        "id": 10,
+        "word": "неизбежно",
+        "example": "Продолжение такой политики неизбежно приведёт к катастрофе."
+      },
+      {
+        "id": 11,
+        "word": "тотально",
+        "example": "Система образования тотально деградировала за последние годы."
+      },
+      {
+        "id": 12,
+        "word": "совершенно",
+        "example": "Власти совершенно не слышат голос простого народа."
+      },
+      {
+        "id": 13,
+        "word": "исключительно",
+        "example": "Это решение принято исключительно в интересах олигархов."
+      },
+      {
+        "id": 14,
+        "word": "повально",
+        "example": "Молодёжь повально бежит из страны в поисках лучшей жизни."
+      },
+      {
+        "id": 15,
+        "word": "категорически",
+        "example": "Эксперты категорически против принятия данного законопроекта."
+      },
+      {
+        "id": 16,
+        "word": "поголовно",
+        "example": "Чиновники поголовно погрязли в коррупционных схемах."
+      },
+      {
+        "id": 17,
+        "word": "раз и навсегда",
+        "example": "Нужно раз и навсегда покончить с этой порочной практикой."
+      },
+      {
+        "id": 18,
+        "word": "сплошь",
+        "example": "Руководство ведомства сплошь состоит из некомпетентных назначенцев."
+      },
+      {
+        "id": 19,
+        "word": "в любом случае",
+        "example": "В любом случае народ окажется в проигрыше от этих реформ."
+      },
+      {
+        "id": 20,
+        "word": "целиком и полностью",
+        "example": "Правительство целиком и полностью несёт ответственность за этот кризис."
+      }
+    ],
+    "causal": [
+      {
+        "id": 1,
+        "word": "because",
+        "example": "Prices are rising because the government is deliberately destroying the economy."
+      },
+      {
+        "id": 2,
+        "word": "therefore",
+        "example": "The vote was rigged, therefore the results cannot be considered legitimate."
+      },
+      {
+        "id": 3,
+        "word": "as a result",
+        "example": "As a result of criminal negligence, thousands of citizens have been harmed."
+      },
+      {
+        "id": 4,
+        "word": "due to",
+        "example": "The economic collapse is due to the reckless decisions of the ruling elite."
+      },
+      {
+        "id": 5,
+        "word": "led to",
+        "example": "Government inaction has led to a full-scale humanitarian disaster."
+      },
+      {
+        "id": 6,
+        "word": "that is why",
+        "example": "Citizens are getting poorer, and that is why the elite is buying foreign property."
+      },
+      {
+        "id": 7,
+        "word": "thus",
+        "example": "Laws are passed without public debate, thus democracy has effectively been abolished."
+      },
+      {
+        "id": 8,
+        "word": "this proves that",
+        "example": "The cover-up proves that the entire institution is fundamentally corrupt."
+      },
+      {
+        "id": 9,
+        "word": "caused by",
+        "example": "The outbreak was caused by deliberate mismanagement at the highest levels."
+      },
+      {
+        "id": 10,
+        "word": "triggered",
+        "example": "It was this single decision that triggered the wave of nationwide protests."
+      },
+      {
+        "id": 11,
+        "word": "it is no coincidence that",
+        "example": "It is no coincidence that these revelations appeared right before the election."
+      },
+      {
+        "id": 12,
+        "word": "under the influence of",
+        "example": "The policy was drafted under the influence of powerful foreign lobbyists."
+      },
+      {
+        "id": 13,
+        "word": "consequently",
+        "example": "Billions were misallocated, consequently the infrastructure has completely collapsed."
+      },
+      {
+        "id": 14,
+        "word": "stems from",
+        "example": "This crisis stems from decades of deliberate underfunding of public services."
+      },
+      {
+        "id": 15,
+        "word": "it follows that",
+        "example": "The data is classified, so it follows that officials are hiding something major."
+      },
+      {
+        "id": 16,
+        "word": "behind this lies",
+        "example": "Behind this seemingly minor regulation lies a scheme to silence the opposition."
+      },
+      {
+        "id": 17,
+        "word": "is to blame for",
+        "example": "The central bank is to blame for the runaway inflation destroying people's savings."
+      },
+      {
+        "id": 18,
+        "word": "sparked",
+        "example": "The leaked documents sparked speculation about widespread electoral fraud."
+      },
+      {
+        "id": 19,
+        "word": "is what caused",
+        "example": "Their deliberate inaction is what caused the situation to spiral out of control."
+      },
+      {
+        "id": 20,
+        "word": "not by accident",
+        "example": "Not by accident did this report surface just days before the crucial vote."
+      },
+      {
+        "id": 1,
+        "word": "потому что",
+        "example": "Цены выросли, потому что власть намеренно разрушает экономику."
+      },
+      {
+        "id": 2,
+        "word": "следовательно",
+        "example": "Выборы прошли с нарушениями, следовательно, их результаты нелегитимны."
+      },
+      {
+        "id": 3,
+        "word": "в результате",
+        "example": "В результате преступной халатности чиновников пострадали тысячи людей."
+      },
+      {
+        "id": 4,
+        "word": "из-за",
+        "example": "Экономика рухнула из-за безграмотных решений правительства."
+      },
+      {
+        "id": 5,
+        "word": "привело к",
+        "example": "Бездействие властей привело к настоящей гуманитарной катастрофе."
+      },
+      {
+        "id": 6,
+        "word": "именно поэтому",
+        "example": "Народ беднеет, и именно поэтому элита скупает зарубежную недвижимость."
+      },
+      {
+        "id": 7,
+        "word": "таким образом",
+        "example": "Законы принимаются в обход общества, таким образом демократия уничтожена."
+      },
+      {
+        "id": 8,
+        "word": "вследствие",
+        "example": "Вследствие провальной политики страна оказалась в полной изоляции."
+      },
+      {
+        "id": 9,
+        "word": "это доказывает, что",
+        "example": "Скандал это доказывает, что система насквозь прогнила."
+      },
+      {
+        "id": 10,
+        "word": "по вине",
+        "example": "По вине коррумпированных чиновников бюджет был полностью разграблен."
+      },
+      {
+        "id": 11,
+        "word": "ведёт к",
+        "example": "Подобная риторика неминуемо ведёт к социальному взрыву."
+      },
+      {
+        "id": 12,
+        "word": "спровоцировало",
+        "example": "Именно это решение спровоцировало волну массовых протестов по стране."
+      },
+      {
+        "id": 13,
+        "word": "стало причиной",
+        "example": "Безответственная политика стало причиной обвала национальной валюты."
+      },
+      {
+        "id": 14,
+        "word": "из этого следует",
+        "example": "Данные засекречены, из этого следует, что скрывается масштабная ложь."
+      },
+      {
+        "id": 15,
+        "word": "породило",
+        "example": "Неравенство породило глубокий кризис доверия к государственным институтам."
+      },
+      {
+        "id": 16,
+        "word": "закономерно, что",
+        "example": "Закономерно, что граждане больше не верят официальной статистике."
+      },
+      {
+        "id": 17,
+        "word": "не случайно",
+        "example": "Не случайно именно сейчас появились эти разоблачительные материалы."
+      },
+      {
+        "id": 18,
+        "word": "под влиянием",
+        "example": "Решение было принято под влиянием иностранных лоббистов."
+      },
+      {
+        "id": 19,
+        "word": "тем самым",
+        "example": "Они замалчивают информацию, тем самым лишая граждан права на правду."
+      },
+      {
+        "id": 20,
+        "word": "обусловлено",
+        "example": "Нынешний кризис обусловлено многолетней некомпетентностью управленцев."
+      }
+    ],
+    "contrast": [
+      {
+        "id": 1,
+        "word": "however",
+        "example": "Officials promised prosperity, however the reality has turned out to be quite different."
+      },
+      {
+        "id": 2,
+        "word": "despite",
+        "example": "Despite all official assurances, the situation continues to deteriorate rapidly."
+      },
+      {
+        "id": 3,
+        "word": "nevertheless",
+        "example": "The data has been manipulated, nevertheless the agency stands by its findings."
+      },
+      {
+        "id": 4,
+        "word": "in reality",
+        "example": "In reality, behind the polished press releases lies a systematic cover-up."
+      },
+      {
+        "id": 5,
+        "word": "while",
+        "example": "While citizens struggle to survive, politicians enjoy lavish state-funded perks."
+      },
+      {
+        "id": 6,
+        "word": "in contrast",
+        "example": "In contrast to what was promised, living standards have fallen sharply."
+      },
+      {
+        "id": 7,
+        "word": "yet",
+        "example": "The evidence is overwhelming, yet authorities refuse to open an investigation."
+      },
+      {
+        "id": 8,
+        "word": "on the contrary",
+        "example": "The problem has not been resolved — on the contrary, it has grown much worse."
+      },
+      {
+        "id": 9,
+        "word": "allegedly",
+        "example": "The allegedly independent panel reached conclusions that were entirely predictable."
+      },
+      {
+        "id": 10,
+        "word": "so-called",
+        "example": "The so-called reform is nothing more than a transfer of wealth to the privileged few."
+      },
+      {
+        "id": 11,
+        "word": "meanwhile",
+        "example": "Hospitals are being closed, meanwhile bureaucrats enjoy yet another pay raise."
+      },
+      {
+        "id": 12,
+        "word": "instead of",
+        "example": "Instead of addressing poverty, the government is cracking down on a free press."
+      },
+      {
+        "id": 13,
+        "word": "but in truth",
+        "example": "On paper it is a stimulus package, but in truth it is a handout to corporations."
+      },
+      {
+        "id": 14,
+        "word": "at the same time",
+        "example": "Austerity is imposed on citizens, at the same time defence budgets balloon unchecked."
+      },
+      {
+        "id": 15,
+        "word": "although",
+        "example": "Although the crisis was officially declared over, unemployment lines keep growing."
+      },
+      {
+        "id": 16,
+        "word": "as opposed to",
+        "example": "As opposed to what the briefings claim, conditions on the ground are far worse."
+      },
+      {
+        "id": 17,
+        "word": "purportedly",
+        "example": "The purportedly neutral watchdog is funded by the very interests it oversees."
+      },
+      {
+        "id": 18,
+        "word": "contrary to",
+        "example": "Contrary to the official narrative, witnesses describe a very different sequence of events."
+      },
+      {
+        "id": 19,
+        "word": "not",
+        "example": "This is a political calculation, not the public service they want us to believe."
+      },
+      {
+        "id": 20,
+        "word": "despite claims",
+        "example": "Despite claims of full transparency, the most critical documents remain classified."
+      },
+      {
+        "id": 1,
+        "word": "однако",
+        "example": "Власти обещали реформы, однако реальность оказалась совершенно иной."
+      },
+      {
+        "id": 2,
+        "word": "вопреки",
+        "example": "Вопреки официальным заявлениям, ситуация продолжает ухудшаться."
+      },
+      {
+        "id": 3,
+        "word": "тем не менее",
+        "example": "Данные сфальсифицированы, тем не менее правительство настаивает на их верности."
+      },
+      {
+        "id": 4,
+        "word": "на самом деле",
+        "example": "На самом деле за красивыми словами скрывается циничный обман граждан."
+      },
+      {
+        "id": 5,
+        "word": "в то время как",
+        "example": "Народ затягивает пояса, в то время как чиновники жируют на бюджетные деньги."
+      },
+      {
+        "id": 6,
+        "word": "несмотря на",
+        "example": "Несмотря на громкие обещания, уровень жизни продолжает стремительно падать."
+      },
+      {
+        "id": 7,
+        "word": "между тем",
+        "example": "Власти отчитываются об успехах, между тем реальные данные говорят об обратном."
+      },
+      {
+        "id": 8,
+        "word": "зато",
+        "example": "Школы и больницы закрываются, зато чиновникам снова подняли зарплаты."
+      },
+      {
+        "id": 9,
+        "word": "напротив",
+        "example": "Ситуация не улучшилась — напротив, она резко деградировала за последний год."
+      },
+      {
+        "id": 10,
+        "word": "в действительности",
+        "example": "В действительности за красивой статистикой скрывается полный управленческий провал."
+      },
+      {
+        "id": 11,
+        "word": "вместо того чтобы",
+        "example": "Вместо того чтобы бороться с бедностью, власть ужесточает контроль над прессой."
+      },
+      {
+        "id": 12,
+        "word": "якобы",
+        "example": "Якобы независимая комиссия пришла к заранее предсказуемым выводам."
+      },
+      {
+        "id": 13,
+        "word": "будто бы",
+        "example": "Они делают вид, будто бы всё под контролем, тогда как факты говорят об ином."
+      },
+      {
+        "id": 14,
+        "word": "тогда как",
+        "example": "Тогда как правда замалчивается, государственная пропаганда работает на полную мощь."
+      },
+      {
+        "id": 15,
+        "word": "но в реальности",
+        "example": "На словах это реформа, но в реальности — очередное ограбление населения."
+      },
+      {
+        "id": 16,
+        "word": "при этом",
+        "example": "Принимаются законы об экономии, при этом расходы на госаппарат лишь растут."
+      },
+      {
+        "id": 17,
+        "word": "хотя",
+        "example": "Хотя официально кризис признан преодолённым, очереди на бирже труда растут."
+      },
+      {
+        "id": 18,
+        "word": "пока",
+        "example": "Пока граждане экономят на еде, элита устраивает роскошные банкеты за рубежом."
+      },
+      {
+        "id": 19,
+        "word": "а не",
+        "example": "Это политическое решение, а не забота о гражданах, как нам пытаются внушить."
+      },
+      {
+        "id": 20,
+        "word": "несмотря на декларации",
+        "example": "Несмотря на декларации о прозрачности, ключевые документы засекречены по сей день."
+      }
+    ],
+    "evaluative_emotional": [
+      {
+        "id": 1,
+        "word": "criminal",
+        "example": "The criminal negligence of officials has led to a tragedy affecting thousands of families."
+      },
+      {
+        "id": 2,
+        "word": "shameful",
+        "example": "The shameful court ruling has sparked a wave of outrage among civil society groups."
+      },
+      {
+        "id": 3,
+        "word": "cynical",
+        "example": "The cynical manipulation of public opinion has now reached unprecedented levels."
+      },
+      {
+        "id": 4,
+        "word": "catastrophic",
+        "example": "The catastrophic consequences of this policy will be felt by every citizen in the country."
+      },
+      {
+        "id": 5,
+        "word": "disastrous",
+        "example": "Another disastrous government initiative has cost the treasury billions of dollars."
+      },
+      {
+        "id": 6,
+        "word": "scandalous",
+        "example": "The scandalous details of the deal have finally been brought to public attention."
+      },
+      {
+        "id": 7,
+        "word": "blatant",
+        "example": "This is a blatant lie that contradicts every piece of verified evidence available."
+      },
+      {
+        "id": 8,
+        "word": "ruthlessly",
+        "example": "The system ruthlessly crushes anyone who dares to speak the truth publicly."
+      },
+      {
+        "id": 9,
+        "word": "egregious",
+        "example": "This egregious violation of human rights occurred at the very heart of a democracy."
+      },
+      {
+        "id": 10,
+        "word": "with impunity",
+        "example": "Corrupt officials loot public funds with complete impunity year after year."
+      },
+      {
+        "id": 11,
+        "word": "brazen",
+        "example": "The brazen dishonesty of the spokesperson has become impossible to ignore."
+      },
+      {
+        "id": 12,
+        "word": "horrifying",
+        "example": "Horrifying statistics on rising poverty are being systematically concealed from the public."
+      },
+      {
+        "id": 13,
+        "word": "devastating",
+        "example": "Devastating reforms have gutted the healthcare system down to its foundations."
+      },
+      {
+        "id": 14,
+        "word": "hypocritical",
+        "example": "The hypocritical rhetoric about caring for ordinary people rings hollow amid mass poverty."
+      },
+      {
+        "id": 15,
+        "word": "predatory",
+        "example": "This predatory tax will ultimately wipe out small businesses across the entire country."
+      },
+      {
+        "id": 16,
+        "word": "outrageous",
+        "example": "The outrageous indifference of those in power to ordinary people's suffering knows no limits."
+      },
+      {
+        "id": 17,
+        "word": "shocking",
+        "example": "Shocking details about the ministry's secret expenditures have been leaked online."
+      },
+      {
+        "id": 18,
+        "word": "alarming",
+        "example": "Alarming new figures reveal the true scale of the unfolding economic collapse."
+      },
+      {
+        "id": 19,
+        "word": "despicable",
+        "example": "The despicable treatment of refugees at the border has drawn international condemnation."
+      },
+      {
+        "id": 20,
+        "word": "explosive",
+        "example": "Explosive revelations about the minister's finances have rocked the ruling coalition."
+      },
+      {
+        "id": 1,
+        "word": "преступный",
+        "example": "Это преступное бездействие властей обернулось трагедией для тысяч семей."
+      },
+      {
+        "id": 2,
+        "word": "позорный",
+        "example": "Позорное решение суда вызвало волну возмущения среди широкой общественности."
+      },
+      {
+        "id": 3,
+        "word": "циничный",
+        "example": "Циничная манипуляция общественным мнением достигла невиданных ранее масштабов."
+      },
+      {
+        "id": 4,
+        "word": "катастрофический",
+        "example": "Катастрофические последствия этой политики ощутит каждый житель страны."
+      },
+      {
+        "id": 5,
+        "word": "провальный",
+        "example": "Очередная провальная инициатива правительства стоила бюджету десятков миллиардов."
+      },
+      {
+        "id": 6,
+        "word": "скандальный",
+        "example": "Скандальные подробности этой сделки наконец стали достоянием общественности."
+      },
+      {
+        "id": 7,
+        "word": "лживый",
+        "example": "Лживые обещания политиков давно перестали удивлять разочарованных избирателей."
+      },
+      {
+        "id": 8,
+        "word": "беспощадно",
+        "example": "Система беспощадно давит всех, кто осмеливается говорить правду вслух."
+      },
+      {
+        "id": 9,
+        "word": "вопиющий",
+        "example": "Это вопиющий случай нарушения прав человека в самом сердце Европы."
+      },
+      {
+        "id": 10,
+        "word": "безнаказанно",
+        "example": "Коррупционеры безнаказанно разворовывают народное достояние годами."
+      },
+      {
+        "id": 11,
+        "word": "бесстыдный",
+        "example": "Бесстыдное враньё чиновников давно вошло в норму повседневной политической жизни."
+      },
+      {
+        "id": 12,
+        "word": "ужасающий",
+        "example": "Ужасающие данные о росте бедности тщательно скрываются от широкого общества."
+      },
+      {
+        "id": 13,
+        "word": "разрушительный",
+        "example": "Разрушительные реформы опустошили систему здравоохранения до самого основания."
+      },
+      {
+        "id": 14,
+        "word": "лицемерный",
+        "example": "Лицемерные заявления о заботе о народе звучат на фоне тотального обнищания."
+      },
+      {
+        "id": 15,
+        "word": "грабительский",
+        "example": "Грабительский налог окончательно уничтожит малый бизнес во всех регионах."
+      },
+      {
+        "id": 16,
+        "word": "возмутительный",
+        "example": "Возмутительное равнодушие властей к бедам обычных людей не знает никаких границ."
+      },
+      {
+        "id": 17,
+        "word": "шокирующий",
+        "example": "Шокирующие факты о расходах ведомства были слиты в открытый доступ."
+      },
+      {
+        "id": 18,
+        "word": "наглый",
+        "example": "Наглая ложь официальных представителей опровергается реальными независимыми цифрами."
+      },
+      {
+        "id": 19,
+        "word": "бесчеловечный",
+        "example": "Бесчеловечное отношение к переселенцам стало абсолютной нормой для этих структур."
+      },
+      {
+        "id": 20,
+        "word": "жуткий",
+        "example": "Жуткие подробности произошедшего по-прежнему скрываются от широкой общественности."
+      }
+    ]
+  }
+}
