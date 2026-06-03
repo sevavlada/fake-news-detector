@@ -46,9 +46,23 @@ python run.py -b -q "claim" -j   # Canonical A/B format (JSON)
 
 ## Agents
 
-- **D**: Data-based cross-checking (fact verification via APIs)
-- **T**: Textual & discourse analysis (manipulation markers)
-- **C**: Contextual & source analysis (coherence, security)
+- **D**: Data-based cross-checking. Extracts keywords, queries Google Fact
+  Check, and falls back to web search (Wikipedia by default, no key needed)
+  when Google returns too little. Verdict comes strictly from found evidence.
+- **T**: Textual & discourse analysis. Outputs only a `manipulation_score`
+  and `flags` — it never votes TRUE/FALSE.
+- **C**: Contextual & source analysis (coherence, security).
+
+The synthesizer decides TRUE/FALSE/MANIPULATION strictly from Agent D's
+evidence; `UNVERIFIABLE` only when no evidence was found.
+
+### Tuning knobs (environment variables)
+
+- `WEB_SEARCH_PROVIDER` — `wikipedia` (default), `tavily`, or `none`
+- `TAVILY_API_KEY` — required only if provider is `tavily`
+- `DECISION_THETA` — min Agent-D confidence to commit a verdict (default 1)
+- `MANIPULATION_SCORE_THRESHOLD` — TRUE + this score → MANIPULATION (default 60)
+- `ENABLE_T_ML_MODELS=1` — re-enable Agent T's optional torch models (off by default)
 
 ## A/B Testing vs. single-LLM baseline
 
@@ -92,6 +106,19 @@ Excel file gets `baseline_correct` / `detector_correct` columns plus a
 `claim_with_context` field is sent to the models (use `--field claim` for
 the bare statement).
 
+### Honest metrics
+
+`eval/evaluate.py` reads the Excel from `ab_test.py` and prints accuracy,
+coverage (answered vs. abstained), per-class F1 + macro-F1, a FEVER/LIAR
+breakdown, and a comparison vs. a naive majority baseline. UNVERIFIABLE is
+treated as an abstention (reported as coverage, excluded from accuracy/F1);
+MANIPULATION/MIXED count as "false".
+
+```bash
+python3 eval/evaluate.py                 # reads ab_results.xlsx
+python3 eval/evaluate.py results.xlsx    # a specific file
+```
+
 ## Structure
 
 ```
@@ -102,8 +129,10 @@ fake_news_detector/
 ├── verdict_format.py   # Shared canonical output format (A/B testing)
 ├── agents/             # D, T, C agents
 ├── prompts/            # Agent / router / synthesizer prompts
-├── integrations/       # External APIs (Google Fact Check)
+├── integrations/       # External sources (Google Fact Check, web search)
 ├── graphs/             # LangGraph architectures (A, B)
-└── baseline_llm/       # Isolated single-LLM fact-checker (A/B baseline)
+├── baseline_llm/       # Isolated single-LLM fact-checker (A/B baseline)
+├── ab_test.py          # Batch A/B runner -> Excel
+└── eval/evaluate.py    # Honest metrics (F1, coverage, FEVER/LIAR)
 ```
 
