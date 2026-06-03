@@ -34,10 +34,19 @@ def classify_factual(query: str, llm) -> str:
         return "factual"
 
 
+# Phrases that signal the LLM refused the topic (e.g. Yandex's safety filter on
+# political claims) instead of returning keywords. We must not search for these.
+_REFUSAL_MARKERS = (
+    "не могу", "поговорим о", "обсуждать эту тему", "не буду",
+    "as an ai", "i cannot", "i can't", "i'm sorry", "cannot discuss",
+)
+
+
 def extract_keywords(query: str, llm) -> str:
     """Turn a full claim into a short keyword query for Google Fact Check.
 
-    Falls back to the raw claim if the LLM call fails or returns nothing.
+    Falls back to the raw claim if the LLM call fails, returns nothing, or
+    refuses the topic (so we don't search for a refusal message).
     """
     try:
         response = llm.invoke(AGENT_D_KEYWORDS_PROMPT.format(claim=query))
@@ -46,6 +55,10 @@ def extract_keywords(query: str, llm) -> str:
         keywords = keywords.splitlines()[0].strip().strip('"').strip("'") if keywords else ""
         # Underscores/extra spaces hurt keyword search.
         keywords = " ".join(keywords.replace("_", " ").split())
+        # If the model refused instead of giving keywords, search the raw claim.
+        if any(marker in keywords.lower() for marker in _REFUSAL_MARKERS):
+            print("    -> keyword step refused by model; using raw claim for search")
+            return query
         return keywords or query
     except Exception as e:
         print(f"Keyword extraction error: {e}")
