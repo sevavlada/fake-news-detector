@@ -9,12 +9,18 @@ Returns a list of evidence dicts: {"snippet", "url", "source"}.
 """
 
 import os
+import re
 from typing import List, Dict, Any
 
 import requests
 
 _WIKI_API = "https://en.wikipedia.org/w/api.php"
 _HEADERS = {"User-Agent": "fake-news-detector/1.0 (factcheck research)"}
+
+
+def _strip_html(text: str) -> str:
+    """Remove the <span class="searchmatch"> markup Wikipedia adds to snippets."""
+    return re.sub(r"<[^>]+>", "", text or "").strip()
 
 
 def _provider() -> str:
@@ -31,28 +37,38 @@ def _wikipedia_search(query: str, max_results: int = 5) -> List[Dict[str, Any]]:
         if resp.status_code != 200:
             print(f"Wikipedia search error: {resp.status_code}")
             return []
-        titles = [hit["title"] for hit in resp.json().get("query", {}).get("search", [])]
-        if not titles:
+        hits = resp.json().get("query", {}).get("search", [])
+        if not hits:
             return []
 
+        results: List[Dict[str, Any]] = []
+        # 1) Matched-sentence snippets — these often contain the exact fact,
+        #    even when it is buried in the article body (not the intro).
+        for hit in hits:
+            snippet = _strip_html(hit.get("snippet", ""))
+            if snippet:
+                results.append({
+                    "snippet": snippet,
+                    "url": "https://en.wikipedia.org/wiki/" + hit["title"].replace(" ", "_"),
+                    "source": "wikipedia",
+                })
+
+        # 2) Intro extracts of the top articles for general context.
+        titles = [hit["title"] for hit in hits]
         ext = requests.get(_WIKI_API, headers=_HEADERS, timeout=15, params={
             "action": "query", "prop": "extracts", "exintro": 1, "explaintext": 1,
             "exlimit": max_results, "titles": "|".join(titles), "format": "json",
         })
         pages = ext.json().get("query", {}).get("pages", {}) if ext.status_code == 200 else {}
-
-        results = []
         for page in pages.values():
-            title = page.get("title", "")
             extract = (page.get("extract") or "").strip()
-            if not extract:
-                continue
-            results.append({
-                "snippet": extract[:500],
-                "url": "https://en.wikipedia.org/wiki/" + title.replace(" ", "_"),
-                "source": "wikipedia",
-            })
-        return results[:max_results]
+            if extract:
+                results.append({
+                    "snippet": extract[:500],
+                    "url": "https://en.wikipedia.org/wiki/" + page.get("title", "").replace(" ", "_"),
+                    "source": "wikipedia",
+                })
+        return results[: max_results * 2]
     except Exception as e:  # noqa: BLE001
         print(f"Wikipedia exception: {e}")
         return []
