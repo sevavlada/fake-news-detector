@@ -21,6 +21,15 @@ YANDEX_BASE_URL = "https://llm.api.cloud.yandex.net/v1"
 DEFAULT_MODEL = "yandexgpt/latest"
 DEFAULT_TEMPERATURE = 0
 
+# --- Synthesis decision thresholds (Task 3) ---
+# Minimum Agent-D confidence (0-100) for its evidence-based TRUE/FALSE to stand:
+# if evidence exists, the synthesizer must NOT downgrade to UNVERIFIABLE out of
+# caution. Lower THETA => the system commits to a verdict more readily.
+DECISION_THETA = int(os.getenv("DECISION_THETA", "1"))
+# If content is TRUE by evidence but the text is this manipulative or more,
+# the final verdict becomes MANIPULATION (never flips TRUE<->FALSE).
+MANIPULATION_SCORE_THRESHOLD = int(os.getenv("MANIPULATION_SCORE_THRESHOLD", "60"))
+
 
 def _to_model_uri(model: str) -> str:
     """Expand a bare model id (e.g. 'yandexgpt/latest') to a Yandex gpt:// URI."""

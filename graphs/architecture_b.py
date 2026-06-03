@@ -11,11 +11,27 @@ from typing import Dict, Any
 from langgraph.graph import StateGraph, START, END
 from langchain.messages import AIMessage
 
+import re
+
 from ..state import FakeNewsAgentState
-from ..config import get_llm
+from ..config import get_llm, DECISION_THETA, MANIPULATION_SCORE_THRESHOLD
 from ..prompts import SYNTHESIZER_PROMPT
 from ..agents import agent_d_node, agent_t_node, agent_c_node
 from ..agents.base import parse_json_response, safe_get_confidence
+
+
+def _parse_agent_d(result_text: str):
+    """Pull Agent D's evidence-based verdict and confidence from its text."""
+    m = re.search(r"\[Agent D\]\s*([A-Z]+)\s*\((\d+)%\)", result_text or "")
+    if not m:
+        return None, 0
+    return m.group(1).upper(), int(m.group(2))
+
+
+def _parse_manipulation_score(result_text: str) -> int:
+    """Pull Agent T's manipulation_score from its text."""
+    m = re.search(r"manipulation_score:\s*(\d+)", result_text or "")
+    return int(m.group(1)) if m else 0
 
 
 def synthesizer_node(state: FakeNewsAgentState) -> Dict[str, Any]:
@@ -38,6 +54,7 @@ def synthesizer_node(state: FakeNewsAgentState) -> Dict[str, Any]:
         agent_d_result=agent_d_result,
         agent_t_result=agent_t_result,
         agent_c_result=agent_c_result,
+        decision_theta=DECISION_THETA,
     )
 
     try:
@@ -50,11 +67,26 @@ def synthesizer_node(state: FakeNewsAgentState) -> Dict[str, Any]:
             "reasoning": f"Synthesis error: {e}",
         }
 
-    final_verdict = synthesis.get("final_verdict", "UNVERIFIABLE")
+    final_verdict = str(synthesis.get("final_verdict", "UNVERIFIABLE")).upper()
     confidence = safe_get_confidence(synthesis)
     agreement = synthesis.get("agent_agreement", "unknown")
     key_factors = synthesis.get("key_factors", [])
     reasoning = synthesis.get("reasoning", "")
+
+    # --- Deterministic guards (Task 3) ---
+    d_verdict, d_conf = _parse_agent_d(agent_d_result)
+    manipulation_score = _parse_manipulation_score(agent_t_result)
+
+    # Don't downgrade an evidence-based verdict to UNVERIFIABLE out of caution.
+    if final_verdict == "UNVERIFIABLE" and d_verdict in ("TRUE", "FALSE", "MIXED") \
+            and d_conf >= DECISION_THETA:
+        final_verdict = "MANIPULATION" if d_verdict == "MIXED" else d_verdict
+        if not reasoning:
+            reasoning = "Принято по доказательствам Агента D."
+
+    # A true-but-manipulative claim is flagged MANIPULATION (never flipped to FALSE).
+    if final_verdict == "TRUE" and manipulation_score >= MANIPULATION_SCORE_THRESHOLD:
+        final_verdict = "MANIPULATION"
 
     result_text = (
         f"[FINAL] {final_verdict} ({confidence}%)\n"

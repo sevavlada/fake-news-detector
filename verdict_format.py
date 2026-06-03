@@ -17,7 +17,7 @@ Canonical schema (JSON):
 import json
 from typing import Any, Dict, List
 
-VERDICTS = ("TRUE", "FALSE", "MIXED", "UNVERIFIABLE")
+VERDICTS = ("TRUE", "FALSE", "MIXED", "MANIPULATION", "UNVERIFIABLE")
 
 
 def normalize_verdict(claim: str, data: Dict[str, Any]) -> Dict[str, Any]:
