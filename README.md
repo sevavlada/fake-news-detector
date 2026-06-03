@@ -31,13 +31,18 @@ python run.py
 
 ```bash
 python run.py                    # Interactive mode
+python run.py -q "claim"         # Default: structured XAI verification protocol
 python run.py -a -q "claim"      # Architecture A (router)
 python run.py -b -q "claim"      # Architecture B (parallel)
 python run.py -s                 # Sample queries
-python run.py -v                 # Verbose output
-python run.py -a -q "claim" -c   # Canonical A/B format (text)
-python run.py -b -q "claim" -j   # Canonical A/B format (JSON)
+python run.py -v                 # Verbose (legacy detailed dump)
+python run.py -q "claim" -c      # Canonical A/B format (text)
+python run.py -q "claim" -j      # Canonical A/B format (JSON)
 ```
+
+The default output is a per-agent **verification protocol** (Data / Language
+/ Context findings + sources + synthesis) — the system's XAI reasoning chain.
+Use `-c`/`-j` for the compact canonical format used in A/B testing.
 
 ## Architectures
 
