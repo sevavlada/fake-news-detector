@@ -17,20 +17,20 @@ AGENT_T_PROMPT = """
 повышают вероятность манипуляции и кликбейта. Опирайся на конкретные
 найденные маркеры в обосновании.
 
+Ты НЕ решаешь, правда это или ложь, и НЕ выносишь вердикт. Ты оцениваешь
+ТОЛЬКО форму подачи (стиль, эмоции, манипулятивные приёмы).
+
 Текст:
 {text}
 
 Метрики:
 {metrics}
 
-Верни строго JSON:
+Верни строго JSON (без вердикта о достоверности):
 {{
-  "verdict": "TRUE | FALSE | MIXED | UNVERIFIABLE",
-  "confidence": <целое число 0-100>,
-  "manipulative_style": "описание манипулятивных приёмов",
+  "manipulation_score": <целое число 0-100, насколько манипулятивна подача>,
+  "flags": ["loaded_language", "cherry_picking", "clickbait", "absolutives", ...],
   "emotional_intensity": "low / medium / high",
-  "clickbait_probability": "low / medium / high",
-  "linguistic_risk_level": "low / medium / high",
-  "reasoning": "короткое обоснование"
+  "reasoning": "короткое обоснование на основе найденных маркеров"
 }}
 """

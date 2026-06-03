@@ -132,16 +132,22 @@ def agent_t_node(state: FakeNewsAgentState) -> Dict[str, Any]:
         agent_report = parse_json_response(response.content)
     except Exception as e:
         agent_report = {
-            "verdict": "UNVERIFIABLE",
-            "confidence": 0,
+            "manipulation_score": 0,
+            "flags": [],
             "reasoning": f"LLM error: {e}",
         }
 
-    confidence = safe_get_confidence(agent_report)
-    verdict = agent_report.get("verdict", "UNVERIFIABLE")
-    risk_level = agent_report.get("linguistic_risk_level", "unknown")
+    # Agent T does NOT produce a verdict — only a manipulation assessment.
+    try:
+        manipulation_score = int(agent_report.get("manipulation_score", 0))
+    except (TypeError, ValueError):
+        manipulation_score = 0
+    flags = agent_report.get("flags", []) or []
     reasoning = agent_report.get("reasoning", "")
-    result_text = f"[Agent T] {verdict} ({confidence}%), risk: {risk_level}: {reasoning}"
+    result_text = (
+        f"[Agent T] manipulation_score: {manipulation_score}/100, "
+        f"flags: {', '.join(flags) if flags else 'none'}. {reasoning}"
+    )
 
     ai_msg = AIMessage(content=result_text)
 
@@ -154,7 +160,7 @@ def agent_t_node(state: FakeNewsAgentState) -> Dict[str, Any]:
 
     return {
         "agent_t_result": result_text,
-        "confidence": confidence,
+        # No "confidence"/verdict written: Agent T must not affect TRUE/FALSE.
         "protocol": protocol,
         "messages": messages + [ai_msg],
     }
