@@ -24,7 +24,7 @@ if _PARENT_DIR not in sys.path:
 from fake_news_detector.state import create_initial_state
 from fake_news_detector.graphs import create_router_graph, create_parallel_graph
 from fake_news_detector.graphs.architecture_b import create_truly_parallel_graph
-from fake_news_detector.utils import format_result
+from fake_news_detector.utils import format_result, format_comparable
 
 
 SAMPLE_QUERIES = [
@@ -35,7 +35,8 @@ SAMPLE_QUERIES = [
 ]
 
 
-def run_detection(query: str, architecture: str = "A", verbose: bool = False, parallel: bool = False):
+def run_detection(query: str, architecture: str = "A", verbose: bool = False,
+                  parallel: bool = False, compare: bool = False, as_json: bool = False):
     """Run fake news detection on a query."""
     print(f"\nUsing Architecture {architecture}")
     print("-" * 40)
@@ -56,7 +57,11 @@ def run_detection(query: str, architecture: str = "A", verbose: bool = False, pa
 
     try:
         result = graph.invoke(initial_state)
-        print(format_result(result, verbose=verbose))
+        if compare or as_json:
+            source = f"Fake News Detector (Arch {architecture})"
+            print(format_comparable(result, source=source, as_json=as_json))
+        else:
+            print(format_result(result, verbose=verbose))
         return result
     except Exception as e:
         print(f"Error during detection: {e}")
@@ -79,7 +84,7 @@ def interactive_mode():
     print("  arch A/B  - Switch architecture")
     print()
 
-    current_arch = "A"
+    current_arch = "B"
 
     while True:
         try:
@@ -143,6 +148,14 @@ def main():
         "-s", "--sample", action="store_true",
         help="Run sample queries"
     )
+    parser.add_argument(
+        "-c", "--compare", action="store_true",
+        help="Output in the shared canonical format (for A/B testing)"
+    )
+    parser.add_argument(
+        "-j", "--json", action="store_true",
+        help="Output the canonical verdict as raw JSON (for A/B testing)"
+    )
 
     args = parser.parse_args()
 
@@ -151,18 +164,21 @@ def main():
     elif args.arch_b:
         arch = "B"
     else:
-        arch = "A"
+        # Default: Architecture B — all agents in sequence (D -> T -> C -> synthesizer).
+        arch = "B"
 
     if args.sample:
         print("Running sample queries...")
         for sq in SAMPLE_QUERIES:
             print(f"\n{'=' * 60}")
             print(f"Sample: {sq}")
-            run_detection(sq, arch, verbose=args.verbose, parallel=args.parallel)
+            run_detection(sq, arch, verbose=args.verbose, parallel=args.parallel,
+                          compare=args.compare, as_json=args.json)
         return
 
     if args.query:
-        run_detection(args.query, arch, verbose=args.verbose, parallel=args.parallel)
+        run_detection(args.query, arch, verbose=args.verbose, parallel=args.parallel,
+                      compare=args.compare, as_json=args.json)
     else:
         interactive_mode()
 

@@ -4,6 +4,40 @@ import json
 import sys
 from typing import Dict, Any
 
+from .verdict_format import normalize_verdict, format_verdict, verdict_to_json
+
+
+def state_to_verdict(state: Dict[str, Any]) -> Dict[str, Any]:
+    """Normalize a finished graph state into the shared canonical verdict.
+
+    Reads the structured data the agents/synthesizer stored in `protocol`
+    so the multi-agent output can be A/B-compared against the baseline app.
+    """
+    claim = state.get("query", "") or ""
+    protocol = state.get("protocol", {}) or {}
+
+    # Architecture B: the synthesizer stores a structured dict.
+    if isinstance(protocol.get("synthesis"), dict):
+        return normalize_verdict(claim, protocol["synthesis"])
+
+    # Architecture A: the selected agent stores its report.
+    if isinstance(protocol.get("agent_report"), dict):
+        return normalize_verdict(claim, protocol["agent_report"])
+
+    # Fallback: use the flat fields on the state.
+    return normalize_verdict(claim, {
+        "verdict": state.get("final_verdict", "UNVERIFIABLE"),
+        "confidence": state.get("confidence", 0),
+    })
+
+
+def format_comparable(state: Dict[str, Any], source: str = "", as_json: bool = False) -> str:
+    """Render a finished state in the shared canonical A/B format."""
+    verdict = state_to_verdict(state)
+    if as_json:
+        return verdict_to_json(verdict)
+    return format_verdict(verdict, source=source)
+
 
 def safe_str(text: str) -> str:
     """Convert text to be safely printable on Windows console."""

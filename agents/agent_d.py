@@ -1,8 +1,8 @@
 """Agent D: Data-based Cross-checking.
 
-Verifies factual claims using external databases and APIs:
-- Google Fact Check Tools
-- Local indices (FEVER/LIAR when available)
+Verifies factual claims using external sources:
+- Google Fact Check Tools (keyword search)
+- Web-search fallback (Wikipedia by default) when Google returns too little
 """
 
 import json
@@ -11,9 +11,45 @@ from langchain.messages import AIMessage
 
 from ..state import FakeNewsAgentState
 from ..config import get_llm
-from ..prompts import AGENT_D_PROMPT
-from ..integrations import google_factcheck_search
+from ..prompts import AGENT_D_PROMPT, AGENT_D_KEYWORDS_PROMPT, AGENT_D_FACTUAL_PROMPT
+from ..integrations import google_factcheck_multi, web_fallback
 from .base import extract_query, parse_json_response, safe_get_confidence
+
+# Minimum number of solid results before we trust the primary sources;
+# below this, Agent D asks the web-search fallback for more evidence.
+MIN_PRIMARY_RESULTS = 2
+
+
+def classify_factual(query: str, llm) -> str:
+    """Replaces the removed ClaimBuster: is this claim checkable or just opinion?
+
+    Returns "factual" or "non_factual" (defaults to "factual" on any error).
+    """
+    try:
+        response = llm.invoke(AGENT_D_FACTUAL_PROMPT.format(claim=query))
+        answer = str(response.content).strip().lower()
+        return "non_factual" if "non_factual" in answer or "non-factual" in answer else "factual"
+    except Exception as e:
+        print(f"Factual classification error: {e}")
+        return "factual"
+
+
+def extract_keywords(query: str, llm) -> str:
+    """Turn a full claim into a short keyword query for Google Fact Check.
+
+    Falls back to the raw claim if the LLM call fails or returns nothing.
+    """
+    try:
+        response = llm.invoke(AGENT_D_KEYWORDS_PROMPT.format(claim=query))
+        keywords = str(response.content).strip()
+        # Keep only the first line and strip surrounding quotes.
+        keywords = keywords.splitlines()[0].strip().strip('"').strip("'") if keywords else ""
+        # Underscores/extra spaces hurt keyword search.
+        keywords = " ".join(keywords.replace("_", " ").split())
+        return keywords or query
+    except Exception as e:
+        print(f"Keyword extraction error: {e}")
+        return query
 
 
 def agent_d_node(state: FakeNewsAgentState) -> Dict[str, Any]:
@@ -40,14 +76,41 @@ def agent_d_node(state: FakeNewsAgentState) -> Dict[str, Any]:
             "messages": messages + [ai_msg],
         }
 
-    google_results = google_factcheck_search(query)
+    llm = get_llm()
+
+    # Is this a checkable factual claim at all? (replaces ClaimBuster)
+    claim_type = classify_factual(query, llm)
+
+    # Search Google Fact Check by extracted keywords (best match), then fall
+    # back to the raw claim. Results are merged and de-duplicated.
+    keywords = extract_keywords(query, llm)
+    print(f"    -> Google Fact Check keywords: {keywords}")
+    google_results = google_factcheck_multi([keywords, query])
+
+    # Web fallback: only when the primary sources gave too little evidence.
+    web_results = []
+    web_used = len(google_results) < MIN_PRIMARY_RESULTS
+    if web_used:
+        web_results = web_fallback(keywords or query)
+
+    # Task 5: log how much each source returned.
+    retrieval_trace = {
+        "claim_type": claim_type,
+        "search_keywords": keywords,
+        "google_factcheck_count": len(google_results),
+        "web_fallback_used": web_used,
+        "web_results_count": len(web_results),
+    }
+    print(f"    -> Retrieval: google={len(google_results)}, "
+          f"web_fallback={'on' if web_used else 'off'}({len(web_results)})")
 
     aggregated_data = {
+        "search_keywords": keywords,
         "google_factcheck": google_results,
+        "web_search": web_results,
     }
     retrieved_context = json.dumps(aggregated_data, ensure_ascii=False, indent=2)
 
-    llm = get_llm()
     prompt = AGENT_D_PROMPT.format(query=query, retrieved_context=retrieved_context)
 
     try:
@@ -71,6 +134,7 @@ def agent_d_node(state: FakeNewsAgentState) -> Dict[str, Any]:
         "agent": "D",
         "method": "Data-based Cross-checking",
         "retrieved_context": aggregated_data,
+        "retrieval_trace": retrieval_trace,
         "agent_report": agent_report,
     }
 

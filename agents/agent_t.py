@@ -7,6 +7,7 @@ Analyzes linguistic patterns and manipulation markers:
 - Rhetorical structure
 """
 
+import os
 from typing import Dict, Any
 from langchain.messages import AIMessage
 
@@ -20,9 +21,22 @@ _sentiment_model = None
 _toxicity_model = None
 
 
+def _ml_models_enabled() -> bool:
+    """The optional transformers/torch models are OFF by default.
+
+    On some machines (notably macOS) loading torch can hard-crash the
+    process with a "bus error" that Python cannot catch. The models are
+    optional — Agent T works on lexical markers + the LLM without them.
+    Set ENABLE_T_ML_MODELS=1 to opt back in.
+    """
+    return os.getenv("ENABLE_T_ML_MODELS", "").lower() in ("1", "true", "yes")
+
+
 def _get_sentiment_model():
-    """Lazy load sentiment analysis model."""
+    """Lazy load sentiment analysis model (only if explicitly enabled)."""
     global _sentiment_model
+    if not _ml_models_enabled():
+        return None
     if _sentiment_model is None:
         try:
             from transformers import pipeline
@@ -34,8 +48,10 @@ def _get_sentiment_model():
 
 
 def _get_toxicity_model():
-    """Lazy load toxicity detection model."""
+    """Lazy load toxicity detection model (only if explicitly enabled)."""
     global _toxicity_model
+    if not _ml_models_enabled():
+        return None
     if _toxicity_model is None:
         try:
             from transformers import pipeline

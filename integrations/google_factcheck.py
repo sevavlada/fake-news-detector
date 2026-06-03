@@ -6,17 +6,18 @@ import requests
 from ..config import GOOGLE_FACTCHECK_API_KEY
 
 
-def google_factcheck_search(query: str) -> List[Dict[str, Any]]:
+def google_factcheck_search(query: str, max_results: int = 5) -> List[Dict[str, Any]]:
     """
     Search Google Fact Check Tools API for fact-check articles.
 
     Args:
-        query: The claim or text to search for
+        query: Keywords to search for (works best as keywords, not a full sentence)
+        max_results: Maximum number of claims to read from the response
 
     Returns:
         List of fact-check results with claim text, publisher, rating, and URL
     """
-    if not GOOGLE_FACTCHECK_API_KEY:
+    if not GOOGLE_FACTCHECK_API_KEY or not query.strip():
         return []
 
     url = "https://factchecktools.googleapis.com/v1alpha1/claims:search"
@@ -37,7 +38,7 @@ def google_factcheck_search(query: str) -> List[Dict[str, Any]]:
         claims = data.get("claims", [])
 
         results = []
-        for claim in claims[:3]:
+        for claim in claims[:max_results]:
             claim_text = claim.get("text", "")
             reviews = claim.get("claimReview", [])
 
@@ -54,3 +55,25 @@ def google_factcheck_search(query: str) -> List[Dict[str, Any]]:
     except Exception as e:
         print(f"Google API exception: {e}")
         return []
+
+
+def google_factcheck_multi(queries: List[str], max_results: int = 5) -> List[Dict[str, Any]]:
+    """Run several queries and merge their results, de-duplicated by URL.
+
+    Lets Agent D try a keyword query first and fall back to others without
+    returning the same fact-check article twice.
+    """
+    seen = set()
+    merged: List[Dict[str, Any]] = []
+    for q in queries:
+        if not q or not q.strip():
+            continue
+        for item in google_factcheck_search(q, max_results=max_results):
+            key = item.get("url") or (item.get("claim_text"), item.get("publisher"))
+            if key in seen:
+                continue
+            seen.add(key)
+            merged.append(item)
+        if len(merged) >= max_results:
+            break
+    return merged[:max_results]

@@ -3,6 +3,7 @@ langchain-openai>=0.0.5
 langgraph>=0.0.20
 python-dotenv>=1.0.0
 requests>=2.31.0
+openpyxl>=3.1.0          # for ab_test.py (Excel output)
 
 # Optional: for Agent T ML features (sentiment/toxicity analysis)
 # transformers>=4.35.0
