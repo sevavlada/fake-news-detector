@@ -24,7 +24,7 @@ if _PARENT_DIR not in sys.path:
 from fake_news_detector.state import create_initial_state
 from fake_news_detector.graphs import create_router_graph, create_parallel_graph
 from fake_news_detector.graphs.architecture_b import create_truly_parallel_graph
-from fake_news_detector.utils import format_result, format_comparable
+from fake_news_detector.utils import format_result, format_comparable, format_protocol
 
 
 SAMPLE_QUERIES = [
@@ -57,11 +57,14 @@ def run_detection(query: str, architecture: str = "A", verbose: bool = False,
 
     try:
         result = graph.invoke(initial_state)
+        source = f"Fake News Detector (Arch {architecture})"
         if compare or as_json:
-            source = f"Fake News Detector (Arch {architecture})"
             print(format_comparable(result, source=source, as_json=as_json))
-        else:
+        elif verbose:
             print(format_result(result, verbose=verbose))
+        else:
+            # Default: the structured XAI verification protocol.
+            print(format_protocol(result, source=source))
         return result
     except Exception as e:
         print(f"Error during detection: {e}")

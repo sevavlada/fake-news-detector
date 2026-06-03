@@ -20,11 +20,15 @@ def state_to_verdict(state: Dict[str, Any]) -> Dict[str, Any]:
     if isinstance(protocol.get("synthesis"), dict):
         return normalize_verdict(claim, protocol["synthesis"])
 
-    # Architecture A: the selected agent stores its report.
+    # Architecture A: read the verdict-bearing agent's namespaced report.
+    for key in ("D", "C", "T"):
+        sub = protocol.get(key)
+        if isinstance(sub, dict) and isinstance(sub.get("agent_report"), dict):
+            return normalize_verdict(claim, sub["agent_report"])
+
+    # Legacy / fallback: flat report or state fields.
     if isinstance(protocol.get("agent_report"), dict):
         return normalize_verdict(claim, protocol["agent_report"])
-
-    # Fallback: use the flat fields on the state.
     return normalize_verdict(claim, {
         "verdict": state.get("final_verdict", "UNVERIFIABLE"),
         "confidence": state.get("confidence", 0),
@@ -37,6 +41,79 @@ def format_comparable(state: Dict[str, Any], source: str = "", as_json: bool = F
     if as_json:
         return verdict_to_json(verdict)
     return format_verdict(verdict, source=source)
+
+
+def _wrap(text: str, width: int = 70, indent: str = "  ") -> str:
+    """Wrap a paragraph for the protocol view."""
+    import textwrap
+    text = str(text or "").strip()
+    if not text:
+        return f"{indent}—"
+    return "\n".join(textwrap.fill(line, width=width, initial_indent=indent,
+                                   subsequent_indent=indent)
+                     for line in text.splitlines())
+
+
+def format_protocol(state: Dict[str, Any], source: str = "") -> str:
+    """Render a structured XAI verification protocol (per-agent reasoning chain).
+
+    Surfaces what each specialized agent found (Data / Language / Context) plus
+    the final synthesis — the system's interpretability advantage over a
+    monolithic LLM. Falls back gracefully when an agent's report is missing.
+    """
+    verdict = state_to_verdict(state)
+    protocol = state.get("protocol", {}) or {}
+    lines = []
+    lines.append("═" * 64)
+    title = "VERIFICATION PROTOCOL" + (f" — {source}" if source else "")
+    lines.append(title)
+    lines.append("═" * 64)
+    lines.append(f"Claim:    {verdict['claim']}")
+    lines.append(f"VERDICT:  {verdict['verdict']}        Confidence: {verdict['confidence']}%")
+    lines.append("")
+
+    # ▸ DATA (Agent D)
+    d = protocol.get("D")
+    if isinstance(d, dict):
+        tr = d.get("retrieval_trace", {})
+        srcs = (tr.get("google_factcheck_count", 0), tr.get("web_results_count", 0))
+        lines.append(f"▸ DATA (Agent D)        {d.get('verdict', 'N/A')} · {d.get('confidence', 0)}%")
+        lines.append(_wrap(d.get("reasoning", "")))
+        sources = d.get("sources", [])
+        if sources:
+            lines.append("  Sources:")
+            for s in sources[:3]:
+                rating = f" [{s['rating']}]" if s.get("rating") else ""
+                lines.append(f"    - {s.get('url', '')}{rating}")
+        else:
+            lines.append(f"  Evidence found: Google={srcs[0]}, web={srcs[1]}")
+
+    # ▸ LANGUAGE (Agent T)
+    t = protocol.get("T")
+    if isinstance(t, dict):
+        flags = ", ".join(t.get("flags", [])) or "none"
+        lines.append(f"▸ LANGUAGE (Agent T)    manipulation: {t.get('manipulation_score', 0)}/100")
+        lines.append(f"  Flags: {flags}")
+        lines.append(_wrap(t.get("reasoning", "")))
+
+    # ▸ CONTEXT (Agent C)
+    c = protocol.get("C")
+    if isinstance(c, dict):
+        sec = c.get("security_findings") or []
+        lines.append(f"▸ CONTEXT (Agent C)     risk: {c.get('risk_level', 'unknown')}"
+                     + ("  ⚠ security alert" if sec else ""))
+        lines.append(_wrap(c.get("reasoning", "")))
+
+    # SYNTHESIS
+    syn = protocol.get("synthesis", {})
+    lines.append("")
+    lines.append("SYNTHESIS")
+    if verdict.get("key_factors"):
+        for f in verdict["key_factors"]:
+            lines.append(f"  • {f}")
+    lines.append(_wrap(syn.get("reasoning", verdict.get("reasoning", ""))))
+    lines.append("═" * 64)
+    return safe_str("\n".join(lines))
 
 
 def safe_str(text: str) -> str:

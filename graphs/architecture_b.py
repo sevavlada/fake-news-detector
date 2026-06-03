@@ -97,6 +97,13 @@ def synthesizer_node(state: FakeNewsAgentState) -> Dict[str, Any]:
 
     ai_msg = AIMessage(content=result_text)
 
+    # Persist the GUARDED verdict so metrics and the canonical output use it
+    # (not the LLM's raw, pre-guard answer).
+    synthesis["final_verdict"] = final_verdict
+    synthesis["confidence"] = confidence
+    synthesis["reasoning"] = reasoning
+    synthesis["key_factors"] = key_factors
+
     protocol = state.get("protocol", {})
     protocol["synthesis"] = synthesis
 

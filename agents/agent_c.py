@@ -111,13 +111,18 @@ def agent_c_node(state: FakeNewsAgentState) -> Dict[str, Any]:
 
     ai_msg = AIMessage(content=result_text)
 
-    protocol = {
-        "agent": "C",
+    c_protocol = {
         "method": "Contextual & Source Analysis",
-        "metrics": metrics,
+        "verdict": verdict,
+        "confidence": confidence,
+        "risk_level": risk_level,
+        "reasoning": reasoning,
         "security_findings": security_findings,
+        "metrics": metrics,
         "agent_report": agent_report,
     }
+    # Accumulate per-agent reports (don't overwrite other agents' protocols).
+    protocol = {**(state.get("protocol") or {}), "C": c_protocol}
 
     return {
         "agent_c_result": result_text,

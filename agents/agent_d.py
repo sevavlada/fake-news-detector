@@ -143,13 +143,27 @@ def agent_d_node(state: FakeNewsAgentState) -> Dict[str, Any]:
 
     ai_msg = AIMessage(content=result_text)
 
-    protocol = {
-        "agent": "D",
+    # Top evidence sources for the verification protocol.
+    sources = []
+    for r in google_results:
+        if r.get("url"):
+            sources.append({"url": r["url"], "publisher": r.get("publisher"),
+                            "rating": r.get("rating")})
+    for r in web_results:
+        if r.get("url"):
+            sources.append({"url": r["url"], "publisher": r.get("source")})
+
+    d_protocol = {
         "method": "Data-based Cross-checking",
-        "retrieved_context": aggregated_data,
+        "verdict": verdict,
+        "confidence": confidence,
+        "reasoning": reasoning,
+        "sources": sources[:5],
         "retrieval_trace": retrieval_trace,
         "agent_report": agent_report,
     }
+    # Accumulate per-agent reports (don't overwrite other agents' protocols).
+    protocol = {**(state.get("protocol") or {}), "D": d_protocol}
 
     return {
         "query": query,
