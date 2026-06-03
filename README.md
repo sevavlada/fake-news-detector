@@ -105,6 +105,12 @@ Input JSON may be a list of strings (`["claim 1", "claim 2"]`) or a list of
 objects with a `claim`/`statement`/`text` field. The detector runs through
 Architecture B (all agents in sequence).
 
+The Excel `results` sheet carries the detector's **full reasoning chain** for
+human review: per-agent columns (Agent D verdict/sources/reasoning, Agent T
+manipulation score/flags, Agent C risk/reasoning, synthesis) plus a
+`detector_full_protocol` column with the complete XAI protocol text (the same
+output as a single `run.py` run).
+
 If the objects also carry a ground-truth `verdict` (e.g. FEVER/LIAR), the
 Excel file gets `baseline_correct` / `detector_correct` columns plus a
 `summary` sheet with each system's accuracy. By default the

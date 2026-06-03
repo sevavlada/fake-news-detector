@@ -37,7 +37,7 @@ if _PARENT_DIR not in sys.path:
 
 from fake_news_detector.state import create_initial_state
 from fake_news_detector.graphs.architecture_b import create_parallel_graph
-from fake_news_detector.utils import state_to_verdict
+from fake_news_detector.utils import state_to_verdict, format_protocol
 from fake_news_detector.baseline_llm.chat import check_claim as baseline_check
 
 # Keys we look for when claims are objects rather than plain strings.
@@ -93,10 +93,12 @@ def load_records(path: str, field: str) -> List[Dict[str, Any]]:
 
 
 def run_detector(claim: str) -> Dict[str, Any]:
-    """Run one claim through the multi-agent detector (Architecture B)."""
+    """Run one claim through the multi-agent detector (Architecture B).
+
+    Returns the full graph state so we can surface the whole reasoning chain.
+    """
     graph = create_parallel_graph()
-    state = graph.invoke(create_initial_state(claim))
-    return state_to_verdict(state)
+    return graph.invoke(create_initial_state(claim))
 
 
 def _factors(verdict: Dict[str, Any]) -> str:
@@ -108,6 +110,30 @@ def _correct(verdict: str, ground_truth: str) -> str:
     if not ground_truth:
         return ""
     return "YES" if str(verdict).strip().lower() == ground_truth else "NO"
+
+
+def _agent_fields(state: Dict[str, Any]) -> Dict[str, Any]:
+    """Pull each agent's report out of the state for the results table."""
+    proto = (state or {}).get("protocol", {}) or {}
+
+    def _d(key):
+        v = proto.get(key)
+        return v if isinstance(v, dict) else {}
+
+    d, t, c, syn = _d("D"), _d("T"), _d("C"), _d("synthesis")
+    d_sources = "; ".join(s.get("url", "") for s in d.get("sources", []) if s.get("url"))
+    return {
+        "agentD_verdict": d.get("verdict", ""),
+        "agentD_confidence": d.get("confidence", ""),
+        "agentD_sources": d_sources,
+        "agentD_reasoning": d.get("reasoning", ""),
+        "agentT_manipulation": t.get("manipulation_score", ""),
+        "agentT_flags": "; ".join(t.get("flags", []) or []),
+        "agentT_reasoning": t.get("reasoning", ""),
+        "agentC_risk": c.get("risk_level", ""),
+        "agentC_reasoning": c.get("reasoning", ""),
+        "synthesis_reasoning": syn.get("reasoning", ""),
+    }
 
 
 def main() -> None:
@@ -137,17 +163,24 @@ def main() -> None:
 
     print(f"Loaded {len(records)} claim(s). Field: '{args.field}'. Running A/B test...\n")
 
+    from openpyxl.styles import Alignment
+    from openpyxl.utils import get_column_letter
+
     wb = Workbook()
     ws = wb.active
     ws.title = "results"
-    ws.append([
+    headers = [
         "uid", "dataset", "claim", "ground_truth",
-        "baseline_verdict", "baseline_confidence",
-        "baseline_correct", "baseline_key_factors", "baseline_reasoning",
-        "detector_verdict", "detector_confidence",
-        "detector_correct", "detector_key_factors", "detector_reasoning",
-        "verdicts_match",
-    ])
+        "baseline_verdict", "baseline_confidence", "baseline_correct", "baseline_reasoning",
+        "detector_verdict", "detector_confidence", "detector_correct", "verdicts_match",
+        # --- full detector reasoning chain (XAI), same as a single run ---
+        "agentD_verdict", "agentD_confidence", "agentD_sources", "agentD_reasoning",
+        "agentT_manipulation", "agentT_flags", "agentT_reasoning",
+        "agentC_risk", "agentC_reasoning",
+        "synthesis_reasoning",
+        "detector_full_protocol",
+    ]
+    ws.append(headers)
 
     base_correct = det_correct = scored = match = 0
 
@@ -161,10 +194,14 @@ def main() -> None:
             base = {"verdict": "ERROR", "confidence": 0, "key_factors": [],
                     "reasoning": f"baseline error: {e}"}
         try:
-            det = run_detector(claim)
+            det_state = run_detector(claim)
+            det = state_to_verdict(det_state)
+            fields = _agent_fields(det_state)
+            protocol_text = format_protocol(det_state)
         except Exception as e:  # noqa: BLE001
-            det = {"verdict": "ERROR", "confidence": 0, "key_factors": [],
-                   "reasoning": f"detector error: {e}"}
+            det = {"verdict": "ERROR", "confidence": 0, "reasoning": f"detector error: {e}"}
+            fields = _agent_fields(None)
+            protocol_text = f"detector error: {e}"
 
         bc = _correct(base.get("verdict"), gt)
         dc = _correct(det.get("verdict"), gt)
@@ -178,12 +215,27 @@ def main() -> None:
 
         ws.append([
             rec["uid"], rec["dataset"], claim, gt,
-            base.get("verdict"), base.get("confidence"),
-            bc, _factors(base), base.get("reasoning"),
-            det.get("verdict"), det.get("confidence"),
-            dc, _factors(det), det.get("reasoning"),
-            "YES" if same else "NO",
+            base.get("verdict"), base.get("confidence"), bc, base.get("reasoning"),
+            det.get("verdict"), det.get("confidence"), dc, "YES" if same else "NO",
+            fields["agentD_verdict"], fields["agentD_confidence"],
+            fields["agentD_sources"], fields["agentD_reasoning"],
+            fields["agentT_manipulation"], fields["agentT_flags"], fields["agentT_reasoning"],
+            fields["agentC_risk"], fields["agentC_reasoning"],
+            fields["synthesis_reasoning"],
+            protocol_text,
         ])
+
+    # Readability: wrap long text columns, widen them, freeze the header row.
+    wide = {"claim": 45, "baseline_reasoning": 55, "agentD_sources": 45,
+            "agentD_reasoning": 55, "agentT_reasoning": 45, "agentC_reasoning": 45,
+            "synthesis_reasoning": 60, "detector_full_protocol": 90}
+    for idx, name in enumerate(headers, start=1):
+        letter = get_column_letter(idx)
+        ws.column_dimensions[letter].width = wide.get(name, 16)
+        if name in wide:
+            for cell in ws[letter][1:]:
+                cell.alignment = Alignment(wrap_text=True, vertical="top")
+    ws.freeze_panes = "A2"
 
     # Summary sheet.
     total = len(records)
