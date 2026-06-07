@@ -10,8 +10,11 @@ from typing import Dict, Any
 from langchain.messages import AIMessage
 
 from ..state import FakeNewsAgentState
-from ..config import get_llm
-from ..prompts import AGENT_D_PROMPT, AGENT_D_KEYWORDS_PROMPT, AGENT_D_FACTUAL_PROMPT
+from ..config import get_llm, STRICT_EVIDENCE_ONLY
+from ..prompts import (
+    AGENT_D_PROMPT, AGENT_D_KEYWORDS_PROMPT, AGENT_D_FACTUAL_PROMPT,
+    AGENT_D_POLICY_STRICT, AGENT_D_POLICY_REASONING,
+)
 from ..integrations import google_factcheck_multi, web_fallback
 from .base import extract_query, parse_json_response, safe_get_confidence
 
@@ -40,6 +43,33 @@ _REFUSAL_MARKERS = (
     "не могу", "поговорим о", "обсуждать эту тему", "не буду",
     "as an ai", "i cannot", "i can't", "i'm sorry", "cannot discuss",
 )
+
+
+_EMPTY_EVIDENCE = '{"google_factcheck": [], "web_search": []}'
+
+
+def _knowledge_only_verdict(query: str, llm):
+    """Second-pass verdict from the model's own knowledge (no evidence).
+
+    Used in reasoning mode when the evidence-based pass abstained. Returns a
+    report dict with confidence capped at 65, or None to keep UNVERIFIABLE.
+    """
+    prompt = AGENT_D_PROMPT.format(query=query, retrieved_context=_EMPTY_EVIDENCE,
+                                   evidence_policy=AGENT_D_POLICY_REASONING)
+    try:
+        report = parse_json_response(llm.invoke(prompt).content)
+    except Exception:
+        return None
+    verdict = str(report.get("verdict", "UNVERIFIABLE")).upper()
+    if verdict == "UNVERIFIABLE":
+        return None
+    try:
+        report["confidence"] = min(int(report.get("confidence", 50)), 65)
+    except (TypeError, ValueError):
+        report["confidence"] = 50
+    report["reasoning"] = "(вывод по знаниям модели, без прямых источников) " \
+        + str(report.get("reasoning", ""))
+    return report
 
 
 def extract_keywords(query: str, llm) -> str:
@@ -124,7 +154,9 @@ def agent_d_node(state: FakeNewsAgentState) -> Dict[str, Any]:
     }
     retrieved_context = json.dumps(aggregated_data, ensure_ascii=False, indent=2)
 
-    prompt = AGENT_D_PROMPT.format(query=query, retrieved_context=retrieved_context)
+    policy = AGENT_D_POLICY_STRICT if STRICT_EVIDENCE_ONLY else AGENT_D_POLICY_REASONING
+    prompt = AGENT_D_PROMPT.format(query=query, retrieved_context=retrieved_context,
+                                  evidence_policy=policy)
 
     try:
         response = llm.invoke(prompt)
@@ -135,6 +167,15 @@ def agent_d_node(state: FakeNewsAgentState) -> Dict[str, Any]:
             "confidence": 0,
             "reasoning": f"LLM error: {e}",
         }
+
+    # Reasoning mode: YandexGPT anchors hard on retrieved evidence and abstains
+    # when it is present-but-irrelevant. If it abstained, ask it again WITHOUT
+    # evidence so it answers from its own knowledge (capped, lower confidence).
+    if not STRICT_EVIDENCE_ONLY and \
+            str(agent_report.get("verdict", "UNVERIFIABLE")).upper() == "UNVERIFIABLE":
+        knowledge_report = _knowledge_only_verdict(query, llm)
+        if knowledge_report:
+            agent_report = knowledge_report
 
     confidence = safe_get_confidence(agent_report)
     verdict = agent_report.get("verdict", "UNVERIFIABLE")

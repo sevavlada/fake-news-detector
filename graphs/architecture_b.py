@@ -14,8 +14,10 @@ from langchain.messages import AIMessage
 import re
 
 from ..state import FakeNewsAgentState
-from ..config import get_llm, DECISION_THETA, MANIPULATION_SCORE_THRESHOLD
-from ..prompts import SYNTHESIZER_PROMPT
+from ..config import (
+    get_llm, DECISION_THETA, MANIPULATION_SCORE_THRESHOLD, STRICT_EVIDENCE_ONLY,
+)
+from ..prompts import SYNTHESIZER_PROMPT, SYNTH_POLICY_STRICT, SYNTH_POLICY_REASONING
 from ..agents import agent_d_node, agent_t_node, agent_c_node
 from ..agents.base import parse_json_response, safe_get_confidence
 
@@ -50,11 +52,13 @@ def synthesizer_node(state: FakeNewsAgentState) -> Dict[str, Any]:
     agent_c_result = state.get("agent_c_result", "No result from Agent C")
 
     llm = get_llm()
+    policy_tmpl = SYNTH_POLICY_STRICT if STRICT_EVIDENCE_ONLY else SYNTH_POLICY_REASONING
+    evidence_policy = policy_tmpl.format(decision_theta=DECISION_THETA)
     prompt = SYNTHESIZER_PROMPT.format(
         agent_d_result=agent_d_result,
         agent_t_result=agent_t_result,
         agent_c_result=agent_c_result,
-        decision_theta=DECISION_THETA,
+        evidence_policy=evidence_policy,
     )
 
     try:

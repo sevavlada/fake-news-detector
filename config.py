@@ -30,6 +30,15 @@ DECISION_THETA = int(os.getenv("DECISION_THETA", "1"))
 # the final verdict becomes MANIPULATION (never flips TRUE<->FALSE).
 MANIPULATION_SCORE_THRESHOLD = int(os.getenv("MANIPULATION_SCORE_THRESHOLD", "60"))
 
+# Evidence policy for Agent D and the synthesizer.
+#   False (default) -> "evidence-grounded reasoning": evidence first, but the
+#     agent may reason and use the model's knowledge to interpret partial
+#     evidence and commit to a verdict (with calibrated confidence). Higher
+#     coverage and accuracy — designed to beat the single-LLM baseline.
+#   True -> "strict evidence-only": verdict only when evidence is explicit,
+#     otherwise UNVERIFIABLE. Maximally anti-hallucination, lower coverage.
+STRICT_EVIDENCE_ONLY = os.getenv("STRICT_EVIDENCE_ONLY", "").lower() in ("1", "true", "yes")
+
 
 def _to_model_uri(model: str) -> str:
     """Expand a bare model id (e.g. 'yandexgpt/latest') to a Yandex gpt:// URI."""
