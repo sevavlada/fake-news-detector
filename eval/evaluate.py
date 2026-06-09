@@ -49,6 +49,61 @@ def prf(preds: List[Optional[str]], golds: List[str], positive: str):
     return prec, rec, f1
 
 
+def _class_prf_full(preds: List[Optional[str]], golds: List[str], positive: str):
+    """P/R/F1 for one class over the WHOLE set (abstention counts as a miss)."""
+    tp = fp = fn = 0
+    for p, g in zip(preds, golds):
+        if g == positive:
+            if p == positive:
+                tp += 1
+            else:                     # wrong class OR abstain -> false negative
+                fn += 1
+        elif p == positive:
+            fp += 1
+    prec = tp / (tp + fp) if (tp + fp) else 0.0
+    rec = tp / (tp + fn) if (tp + fn) else 0.0
+    f1 = 2 * prec * rec / (prec + rec) if (prec + rec) else 0.0
+    return prec, rec, f1
+
+
+def macro_metrics(preds: List[Optional[str]], golds: List[str]):
+    """Accuracy + macro-averaged precision/recall/F1 over all samples.
+
+    UNVERIFIABLE (abstention) counts as an incorrect prediction, so these
+    numbers reflect the whole test set — comparable to a system that always
+    answers (like the paper's Table 2).
+    """
+    total = len(golds)
+    accuracy = sum(1 for p, g in zip(preds, golds) if p == g) / total
+    pt, rt, f1t = _class_prf_full(preds, golds, "true")
+    pf, rf, f1f = _class_prf_full(preds, golds, "false")
+    return {
+        "accuracy": accuracy,
+        "precision": (pt + pf) / 2,
+        "recall": (rt + rf) / 2,
+        "f1": (f1t + f1f) / 2,
+    }
+
+
+def comparison_table(base_preds, det_preds, golds,
+                     latency: Optional[dict] = None) -> None:
+    """Print the Table-2-style comparison: accuracy/precision/recall/F1[/latency]."""
+    b = macro_metrics(base_preds, golds)
+    d = macro_metrics(det_preds, golds)
+    print("\n" + "=" * 60)
+    print("СВОДНАЯ ТАБЛИЦА (вся выборка; UNVERIFIABLE = ошибка)")
+    print("=" * 60)
+    print(f"{'Metric':<22}{'Baseline':>12}{'Detector':>12}")
+    print("-" * 46)
+    for label, key in [("Accuracy", "accuracy"), ("Precision (macro)", "precision"),
+                       ("Recall (macro)", "recall"), ("F1-score (macro)", "f1")]:
+        print(f"{label:<22}{b[key]:>12.3f}{d[key]:>12.3f}")
+    if latency:
+        print(f"{'Mean latency (s)':<22}{latency['base_mean']:>12.2f}{latency['det_mean']:>12.2f}")
+        print(f"{'P95 latency (s)':<22}{latency['base_p95']:>12.2f}{latency['det_p95']:>12.2f}")
+    print("=" * 60)
+
+
 def report(name: str, preds: List[Optional[str]], golds: List[str]) -> None:
     total = len(golds)
     answered = [(p, g) for p, g in zip(preds, golds) if p is not None]
@@ -142,6 +197,16 @@ def main() -> None:
     report_by_dataset("baseline", base_rows)
     report("Агент-детектор", det_preds, golds)
     report_by_dataset("detector", det_rows)
+
+    # Latency from an optional sidecar JSON ({"base_mean","base_p95","det_mean","det_p95"}).
+    latency = None
+    lat_path = path.rsplit(".", 1)[0] + ".latency.json"
+    import os
+    import json as _json
+    if os.path.exists(lat_path):
+        with open(lat_path) as f:
+            latency = _json.load(f)
+    comparison_table(base_preds, det_preds, golds, latency)
 
 
 if __name__ == "__main__":
